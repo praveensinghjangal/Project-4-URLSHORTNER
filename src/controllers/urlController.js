@@ -8,13 +8,15 @@ function isValid(value) {
     if (typeof value === "string" && value.trim().length === 0) return false;
     return true;
   }
-function isValidBody(body) {return Object.keys(body).length > 0}
+
 
 const createURL=async(req,res)=>{
     try{
         let {longUrl}=req.body;
 //----------------------------VALIDATION STARTS------------------------//
-        
+    if(!isValid(longUrl))return res.status(400).send({ status: false,message:"Please provide URL"})   
+    const checkURL=await urlModel.findOne({longUrl})
+    if(checkURL)return res.status(400).send({ status: false,message:`${longUrl} is already present`}) 
 //---------------------------------------------------------------------//
         const urlCode=shortId.generate()
         const baseurl="http://localhost:3000";
