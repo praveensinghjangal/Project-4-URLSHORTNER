@@ -1,8 +1,7 @@
 const urlModel=require("../models/urlModel")
 const shortId=require("shortid")
-const validURL=require("valid-url");
 
-
+const rexURL = /(http|https):\/\/(www\.)?[-a-zA-Z0-9@:%.\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%\+.~#?&//=]*)/
 function isValid(value) {
     if (typeof value === "undefined" || typeof value === "null") return false;
     if (typeof value === "string" && value.trim().length === 0) return false;
@@ -14,7 +13,8 @@ const createURL=async(req,res)=>{
         let {longUrl}=req.body;
 //----------------------------VALIDATION STARTS------------------------//
         if(!isValid(longUrl))return res.status(400).send({ status: false,message:"Please provide URL"})  
-        if(!validURL.isUri(longUrl))return res.status(400).send({ status: false,message:`URL is not a Valid URL`}) 
+        if(!longUrl.match(rexURL))return res.status(400).send({ status: false,message:"URL not a Valid "})  
+         
         const checkURL=await urlModel.findOne({longUrl}).select({__v:0,_id:0})
         if(checkURL)return res.status(200).send({ status: true, data :checkURL}) 
 //---------------------------------------------------------------------//
@@ -32,8 +32,10 @@ const createURL=async(req,res)=>{
 const getByID=async(req,res)=>{
     try{
         let urlCode=req.params.urlCode;
+        let coderegex =/^[A-Za-z0-9]{7,14}$/
+        if(!urlCode.match(coderegex)) return res.status(400).send({status :false , message : " Invalid urlcode "})
         const result=await urlModel.findOne({urlCode}).select({longUrl:1,_id:0})
-        if(!result)return res.status(404).send({status:false,message:"Not Found"})  
+        if(!result)return res.status(404).send({status:false,message:" urlcode Not Found"})  
         return res.status(302).redirect(result.longUrl)
     }catch(error){
         return res.status(500).send({ status: false,message: error.message})
