@@ -15,6 +15,7 @@ const createURL=async(req,res)=>{
     try{
 
         let {longUrl,...rest}=req.body;
+        console.log(longUrl)
 //--------------------------------VALIDATION STARTS-----------------------------//
         if(Object.keys(rest).length>0)return res.status(400).send({ status: false,message:"Invalid attributes"})        
         if(!isValid(longUrl))return res.status(400).send({ status: false,message:"long url should be present"})  
