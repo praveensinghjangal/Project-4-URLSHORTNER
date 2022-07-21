@@ -50,7 +50,6 @@ const createURL=async(req,res)=>{
         const result={longUrl,shortUrl,urlCode} 
         const newResult=await urlModel.create(result)
         const data = {longUrl:newResult.longUrl,shortUrl:newResult.shortUrl,urlCode:newResult.urlCode}
-
         return res.status(201).send({ status: true,data: data})
     }catch(error){
         return res.status(500).send({ status: false,message: error.message})
@@ -61,12 +60,13 @@ const getByID=async(req,res)=>{
     try{
         let urlCode=req.params.urlCode;
         if(!urlCode.match(coderegex)) return res.status(400).send({status :false , message : " Invalid urlcode "})
-        let cahcedProfileData = await GET_ASYNC(`${req.params.urlCode}`)
-        if(cahcedProfileData){ return res.status(302).redirect(cahcedProfileData)
+        let cahcedProfileData = await GET_ASYNC(`${urlCode}`)
+        let parseData = JSON.parse(cahcedProfileData)
+        if(cahcedProfileData){ return res.status(302).redirect(parseData.longUrl)
         }else{
-            const result=await urlModel.findOne({urlCode}).select({longUrl:1,_id:0})
+            const result=await urlModel.findOne({urlCode})
             if(!result)return res.status(404).send({status:false,message:" urlcode Not Found"})  
-            await SET_ASYNC(`${req.params.urlCode}`,JSON.stringify(result))
+            await SET_ASYNC(`${urlCode}`,JSON.stringify(result))
             return res.status(302).redirect(result.longUrl)
         }}
     catch(error){
