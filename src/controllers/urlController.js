@@ -15,7 +15,6 @@ redisClient.auth("VAvDAeruo7z3OWTC0lsjkA3KdF1WgXHk", function (err) {
 });
 
 
-
 redisClient.on("connect", async function () {
     console.log("Connected to Redis..");
 });
@@ -44,7 +43,7 @@ const createURL=async(req,res)=>{
         if(!longUrl.match(rexURL))return res.status(400).send({ status: false,message:"URL not a Valid "})  
         const checkURL=await urlModel.findOne({longUrl}).select({__v:0,_id:0})
         if(checkURL)return res.status(200).send({ status: true, data :checkURL}) 
-//--------------------------------------------------------------------------------//
+//--------------------------------------------------------------------------------// 
         const urlCode=shortId.generate().toLowerCase()
         const baseURL="http://localhost:3000/"
         const shortUrl=`${baseURL}${urlCode}`
@@ -63,22 +62,13 @@ const getByID=async(req,res)=>{
         let urlCode=req.params.urlCode;
         if(!urlCode.match(coderegex)) return res.status(400).send({status :false , message : " Invalid urlcode "})
         let cahcedProfileData = await GET_ASYNC(`${req.params.urlCode}`)
-        if(cahcedProfileData){ return res.status(302).redirect(JSON.parse(cahcedProfileData))
-        }
-        
+        if(cahcedProfileData){ return res.status(302).redirect(cahcedProfileData)
+        }else{
             const result=await urlModel.findOne({urlCode}).select({longUrl:1,_id:0})
-            if(!result){return res.status(404).send({status:false,message:" urlcode Not Found"})  
-    }
-       redisClient.SET_ASYNC(`${urlCode}`, JSON.stringify(result.longUrl), function (err, reply){
-        if(err) throw err;
-        redisClient.expire(`${urlCode}`,10 , JSON.stringify(result.longUrl), function (err, reply){
-            if(err) throw err;
-            console.log(reply)
-        })
-       })
-            // await SET_ASYNC(`${req.params.urlCode}`,JSON.stringify(result))
-            // return res.status(302).redirect(result.longUrl)
-        }
+            if(!result)return res.status(404).send({status:false,message:" urlcode Not Found"})  
+            await SET_ASYNC(`${req.params.urlCode}`,JSON.stringify(result))
+            return res.status(302).redirect(result.longUrl)
+        }}
     catch(error){
         return res.status(500).send({ status: false,message: error.message})
     }
