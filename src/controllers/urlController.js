@@ -14,6 +14,8 @@ redisClient.auth("VAvDAeruo7z3OWTC0lsjkA3KdF1WgXHk", function (err) {
     if (err) throw err;
 });
 
+
+
 redisClient.on("connect", async function () {
     console.log("Connected to Redis..");
 });
@@ -24,7 +26,7 @@ const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
 const rexURL = /^(http|https):\/\/(www\.)?[-a-zA-Z0-9@:%.\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%\+.~#?&//=]*)$/
-const coderegex =/^[A-Za-z0-9]{7,14}$/
+const coderegex =/^[A-Za-z0-9 _\-]{7,14}$/
 
 function isValid(value) {
     if (typeof value === "undefined" || typeof value === null) return false;
@@ -61,14 +63,23 @@ const getByID=async(req,res)=>{
         let urlCode=req.params.urlCode;
         if(!urlCode.match(coderegex)) return res.status(400).send({status :false , message : " Invalid urlcode "})
         let cahcedProfileData = await GET_ASYNC(`${req.params.urlCode}`)
-        if(cahcedProfileData)res.status(200).send(cahcedProfileData)
-        else{
-            const result=await urlModel.findOne({urlCode}).select({longUrl:1,_id:0})
-            if(!result)return res.status(404).send({status:false,message:" urlcode Not Found"})  
-            await SET_ASYNC(`${req.params.urlCode}`,JSON.stringify(result))
-            return res.status(302).redirect(result.longUrl)
+        if(cahcedProfileData){ return res.status(302).redirect(JSON.parse(cahcedProfileData))
         }
-    }catch(error){
+        
+            const result=await urlModel.findOne({urlCode}).select({longUrl:1,_id:0})
+            if(!result){return res.status(404).send({status:false,message:" urlcode Not Found"})  
+    }
+       redisClient.SET_ASYNC(`${urlCode}`, JSON.stringify(result.longUrl), function (err, reply){
+        if(err) throw err;
+        redisClient.expire(`${urlCode}`,10 , JSON.stringify(result.longUrl), function (err, reply){
+            if(err) throw err;
+            console.log(reply)
+        })
+       })
+            // await SET_ASYNC(`${req.params.urlCode}`,JSON.stringify(result))
+            // return res.status(302).redirect(result.longUrl)
+        }
+    catch(error){
         return res.status(500).send({ status: false,message: error.message})
     }
 }
