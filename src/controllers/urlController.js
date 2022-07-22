@@ -42,7 +42,9 @@ const createURL=async(req,res)=>{
         if(!isValid(longUrl))return res.status(400).send({ status: false,message:"long url should be present"})  
         if(!longUrl.match(rexURL))return res.status(400).send({ status: false,message:"URL not a Valid "})  
         const checkURL=await urlModel.findOne({longUrl}).select({__v:0,_id:0})
-        if(checkURL)return res.status(200).send({ status: true, data :checkURL}) 
+        if (checkURL) {
+            return res.status(302).send({ status: true, msg: "Data already exists in DB", urlDetails: checkURL})
+        }
 //--------------------------------------------------------------------------------// 
         const urlCode=shortId.generate().toLowerCase()
         const baseURL="http://localhost:3000/"
@@ -50,6 +52,7 @@ const createURL=async(req,res)=>{
         const result={longUrl,shortUrl,urlCode} 
         const newResult=await urlModel.create(result)
         const data = {longUrl:newResult.longUrl,shortUrl:newResult.shortUrl,urlCode:newResult.urlCode}
+
         return res.status(201).send({ status: true,data: data})
     }catch(error){
         return res.status(500).send({ status: false,message: error.message})
