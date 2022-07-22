@@ -43,7 +43,7 @@ const createURL=async(req,res)=>{
         if(!longUrl.match(rexURL))return res.status(400).send({ status: false,message:"URL not a Valid "})  
         const checkURL=await urlModel.findOne({longUrl}).select({__v:0,_id:0})
         if (checkURL) {
-            return res.status(302).send({ status: true, msg: "Data already exists in DB", urlDetails: checkURL})
+            return res.status(200).send({ status: true, msg: "Data already exists in DB", urlDetails: checkURL})
         }
 //--------------------------------------------------------------------------------// 
         const urlCode=shortId.generate().toLowerCase()
