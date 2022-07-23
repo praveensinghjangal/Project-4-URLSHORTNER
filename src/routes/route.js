@@ -8,7 +8,7 @@ router.post("/url/shorten",urlController.createURL);
 router.get("/:urlCode",urlController.getByID);
 
 router.all("/*",(req,res)=>{
-    return res.status(400).send({status:false,message:"Please Enter correct URL"})
+    return res.status(404).send({status:false,message:"Url not found"})
 });
 
 
