@@ -4,22 +4,21 @@ const redis = require("redis");
 
 // Here we create radis server and connect to radis cach memory to use cashing in this code.
 const { promisify } = require("util");
+const {REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, SERVER_URL} = process.env
 
 const redisClient = redis.createClient(
-    12332,
-    "redis-12332.c264.ap-south-1-1.ec2.cloud.redislabs.com",
+    REDIS_PORT,
+    REDIS_HOST,
     { no_ready_check: true }
 );
-redisClient.auth("VAvDAeruo7z3OWTC0lsjkA3KdF1WgXHk", function (err) {
+redisClient.auth(REDIS_PASSWORD, function (err) {
     if (err) throw err;
 });
-
 
 redisClient.on("connect", async function () {
     console.log("Connected to Redis..");
 });
 
-//Connection setup for redis
 
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
@@ -37,6 +36,7 @@ const createURL=async(req,res)=>{
     try{
 
         let {longUrl,...rest}=req.body;
+        
 //-----------------------------VALIDATION STARTS------------------------------//
         if(Object.keys(rest).length>0)return res.status(400).send({ status: false,message:"Invalid attributes"})        
         if(!isValid(longUrl))return res.status(400).send({ status: false,message:"long url should be present"})  
@@ -47,8 +47,8 @@ const createURL=async(req,res)=>{
         }
 //--------------------------------------------------------------------------------// 
         const urlCode=shortId.generate().toLowerCase()
-        const baseURL="http://localhost:3000/"
-        const shortUrl=`${baseURL}${urlCode}`
+        const baseURL= SERVER_URL
+        const shortUrl=`${baseURL}/${urlCode}`
         const result={longUrl,shortUrl,urlCode} 
         const newResult=await urlModel.create(result)
         const data = {longUrl:newResult.longUrl,shortUrl:newResult.shortUrl,urlCode:newResult.urlCode}

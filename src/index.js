@@ -1,14 +1,17 @@
+require('dotenv').config()
 const express = require("express");
-
 const route = require("./routes/route.js");
 const mongoose  = require("mongoose");
 const app = express();
+const cors = require("cors")
 
 app.use(express.json());
 
+app.use(cors())
+
 mongoose
   .connect(
-    "mongodb+srv://Nishant-R:cMVSc6ePV6V4dr03@cluster0.rembes2.mongodb.net/group43Database",
+    process.env.DATABASE,
     {
       useNewUrlParser: true,
     }
@@ -18,6 +21,6 @@ mongoose
 
 app.use("/", route);
 
-app.listen(process.env.PORT || 3000, function () {
-  console.log("Express app running on port " + (process.env.PORT || 3000));
+app.listen(process.env.PORT , function () {
+  console.log("Express app running on port " + (process.env.PORT));
 });
