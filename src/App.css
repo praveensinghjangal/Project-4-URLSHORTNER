@@ -1,0 +1,61 @@
+body {
+  background-color: rgb(248, 52, 52);
+}
+
+.App {
+  margin: auto;
+  width: 30%;
+  /* border: 3px solid green; */
+  padding: 10px;
+  text-align: center;
+}
+
+.longUrl{
+  margin: 1rem;
+  display: flex;
+  flex-direction : column;
+}
+
+.btn1{
+  margin: auto;
+  width: 30% ;
+  height : 40px;
+  font : bold 15px Georgia, serif;
+  background-color:  lightskyblue;
+  border-radius : 0.3rem;
+}
+
+button:hover {
+  background-color : blue  ;
+}
+
+.longUrl input {
+  margin: 0.5rem;
+  height: 30px;
+  border-radius : 0.3rem;
+}
+
+.shortUrl input {
+  margin: 0.5rem;
+  height: 30px;
+  border-radius : 0.3rem;
+}
+
+#clip{
+  margin: auto;
+  width: 50% ;
+  height : 40px;
+  font : bold 15px Georgia, serif;
+  background-color:  lightskyblue;
+  border-radius : 0.3rem;
+}
+
+#clip:hover{
+  background-color : blue  ;
+}
+
+.shortUrl{
+  margin: 1rem;
+  display: flex;
+  flex-direction : column;
+}
